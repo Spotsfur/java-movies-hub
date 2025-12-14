@@ -27,7 +27,7 @@ public class MoviesStore {
         return new HashMap<>(movies);
     }
 
-    public List<Movie> mapToList (Map<Integer, Movie> mapOfMovies) {
+    public List<Movie> mapToList(Map<Integer, Movie> mapOfMovies) {
         return mapOfMovies.values().stream().toList();
     }
 }
