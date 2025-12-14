@@ -22,8 +22,6 @@ public class MoviesHandler extends BaseHttpHandler {
     public void handle(HttpExchange ex) throws IOException {
         Endpoint endpoint = getEndpoint(ex.getRequestMethod(), ex.getRequestURI().getPath(), ex.getRequestURI().getQuery());
 
-        //System.out.println(endpoint.toString());
-
         switch (endpoint) {
             case GET_ALL:
                 getMovies(ex);
@@ -41,7 +39,7 @@ public class MoviesHandler extends BaseHttpHandler {
                 getMoviesOfYear(ex);
                 break;
             default:
-                sendNoContent(ex, 204);
+                sendNoContent(ex, 405);
         }
     }
 
@@ -112,8 +110,8 @@ public class MoviesHandler extends BaseHttpHandler {
                     sendJson(ex, 422, json);
                 }
             } catch (Exception e) {
-                System.err.println("Ошибка преобразования");
-                sendNoContent(ex, 204);
+                String json = gson.toJson("Ошибка преобразования");
+                sendJson(ex, 400, json);
             }
         }
     }
@@ -138,6 +136,7 @@ public class MoviesHandler extends BaseHttpHandler {
     }
 
     private void deleteMovie(HttpExchange ex) throws IOException {
+        Gson gson = new Gson();
         String[] pathParts = ex.getRequestURI().getPath().split("/");
         try {
             int id = Integer.parseInt(pathParts[2]);
@@ -148,7 +147,8 @@ public class MoviesHandler extends BaseHttpHandler {
                 sendNoContent(ex, 404);
             }
         } catch (NumberFormatException e) {
-            sendNoContent(ex, 404);
+            String json = gson.toJson("Некорректный ID");
+            sendJson(ex, 400, json);
         }
     }
 
@@ -175,15 +175,18 @@ public class MoviesHandler extends BaseHttpHandler {
 
     private Endpoint getEndpoint(String requestMethod, String requestPath, String parameters) {
         String[] pathParts = requestPath.split("/");
-        if (requestMethod.equalsIgnoreCase("GET") && pathParts.length == 2 && parameters == null) {
+        final String methodGet = "GET";
+        final String methodPost = "POST";
+        final String methodDel = "DELETE";
+        if (requestMethod.equalsIgnoreCase(methodGet) && pathParts.length == 2 && parameters == null) {
             return Endpoint.GET_ALL;
-        } else if (requestMethod.equalsIgnoreCase("POST") && pathParts.length == 2 && parameters == null) {
+        } else if (requestMethod.equalsIgnoreCase(methodPost) && pathParts.length == 2 && parameters == null) {
             return Endpoint.POST_ONE;
-        } else if (requestMethod.equalsIgnoreCase("GET") && pathParts.length == 3 && parameters == null) {
+        } else if (requestMethod.equalsIgnoreCase(methodGet) && pathParts.length == 3 && parameters == null) {
             return Endpoint.GET_ONE;
-        } else if (requestMethod.equalsIgnoreCase("DELETE") && pathParts.length == 3 && parameters == null) {
+        } else if (requestMethod.equalsIgnoreCase(methodDel) && pathParts.length == 3 && parameters == null) {
             return Endpoint.DELETE_ONE;
-        } else if (requestMethod.equalsIgnoreCase("GET") && pathParts.length == 2 && parameters.startsWith("year=")) {
+        } else if (requestMethod.equalsIgnoreCase(methodGet) && pathParts.length == 2 && parameters.startsWith("year=")) {
             return Endpoint.GET_BUNCH;
         }
         return Endpoint.UNKNOWN;
