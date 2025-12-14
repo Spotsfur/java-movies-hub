@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class MoviesHandler extends BaseHttpHandler {
     private final MoviesStore moviesStore;
 
-    public MoviesHandler(MoviesStore moviesStore){
+    public MoviesHandler(MoviesStore moviesStore) {
         this.moviesStore = moviesStore;
     }
 
@@ -141,7 +141,7 @@ public class MoviesHandler extends BaseHttpHandler {
         String[] pathParts = ex.getRequestURI().getPath().split("/");
         try {
             int id = Integer.parseInt(pathParts[2]);
-            if(moviesStore.getMovies().containsKey(id)) {
+            if (moviesStore.getMovies().containsKey(id)) {
                 moviesStore.deleteMovie(id);
                 sendNoContent(ex, 204);
             } else {
